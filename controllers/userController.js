@@ -32,7 +32,7 @@ exports.createUser = async (req, res) => {
     try {
         const { email, login, cpf, name, password } = req.body;
 
-        // Verificações de dados
+        // Data verification
         if (!email || !login || !password || !cpf || !name) {
             return res.status(400).send('All fields are required');
         }
