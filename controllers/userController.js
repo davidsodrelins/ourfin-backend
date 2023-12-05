@@ -23,7 +23,10 @@ exports.getAllUsers = async (req, res) => {
 
         res.json(usersWithoutPasswords);
     } catch (err) {
-        res.status(500).send('Error accessing the database: ' + err.message);
+        res.status(500).json({
+            message: 'Error accessing the database: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -34,19 +37,31 @@ exports.createUser = async (req, res) => {
 
         // Verificações de dados
         if (!email || !login || !password || !cpf || !name) {
-            return res.status(400).send('All fields are required');
+            return res.status(400).json({
+                message: 'All fields are required',
+                code: 400
+            });
         }
         if (email.length > 255 || name.length > 255 || login.length > 255) {
-            return res.status(400).send('Email, name, and login must not exceed 255 characters');
+            return res.status(400).json({
+                message: 'Email, name, and login must not exceed 255 characters',
+                code: 400
+            });
         }
         if (cpf.length > 14) {
-            return res.status(400).send('CPF must not exceed 14 characters');
+            return res.status(400).json({
+                message: 'CPF must not exceed 14 characters',
+                code: 400
+            });
         }
 
         // Verificar se usuário já existe
         const existingUser = await userModel.findUserByLoginOrEmail(login, email);
         if (existingUser) {
-            return res.status(400).send('User with the given email or login already exists');
+           return res.status(400).json({
+                message: 'User with the given email or login already exists',
+                code: 400
+            });
         }
 
         // Criptografar a senha
@@ -58,10 +73,12 @@ exports.createUser = async (req, res) => {
         const userId = await userModel.createUser(userData);
         res.status(201).json({ message: 'User successfully created', userId });
     } catch (err) {
-        res.status(500).send('Error creating user: ' + err.message);
+        res.status(500).json({
+            message: 'Error creating user: ' + err.message,
+            code: 500
+        });
     }
 };
-
 
 // Find users by name (or part of the name) with pagination
 exports.findUsersByName = async (req, res) => {
@@ -75,7 +92,10 @@ exports.findUsersByName = async (req, res) => {
 
         res.json(usersWithoutPasswords);
     } catch (err) {
-        res.status(500).send('Error searching users by name: ' + err.message);
+        res.status(500).json({
+            message: 'Error searching users by name: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -83,9 +103,15 @@ exports.findUsersByName = async (req, res) => {
 exports.findUserByCPF = async (req, res) => {
     try {
         const user = await userModel.findUserByCPF(req.params.cpf);
-        user ? res.json(removePassword(user)) : res.status(404).send('User not found');
+        user ? res.json(removePassword(user)) : res.status(404).json({
+            message: 'User not found',
+            code: 404
+        });
     } catch (err) {
-        res.status(500).send('Error searching user by CPF: ' + err.message);
+        res.status(500).json({
+            message: 'Error searching user by CPF: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -101,7 +127,10 @@ exports.findUsersByEmail = async (req, res) => {
 
         res.json(usersWithoutPasswords);
     } catch (err) {
-        res.status(500).send('Error searching users by email: ' + err.message);
+        res.status(500).json({
+            message: 'Error searching users by email: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -109,9 +138,15 @@ exports.findUsersByEmail = async (req, res) => {
 exports.findUserById = async (req, res) => {
     try {
         const user = await userModel.findUserById(req.params.id);
-        user ? res.json(removePassword(user)) : res.status(404).send('User not found');
+        user ? res.json(removePassword(user)) : res.status(404).json({
+            message: 'User not found',
+            code: 404
+        });
     } catch (err) {
-        res.status(500).send('Error searching user by ID: ' + err.message);
+        res.status(500).json({
+            message: 'Error searching user by ID: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -126,9 +161,15 @@ exports.updateUser = async (req, res) => {
         }
 
         await userModel.updateUser(id, userData);
-        res.status(200).send('User successfully updated');
+        res.status(200).json({
+            message: 'User successfully updated',
+            code: 200
+        });
     } catch (err) {
-        res.status(500).send('Error updating user: ' + err.message);
+        res.status(500).json({
+            message: 'Error updating user: ' + err.message,
+            code: 500
+        });
     }
 };
 
@@ -137,8 +178,27 @@ exports.changeUserStatus = async (req, res) => {
     try {
         const newStatus = req.body.status; // Should be "Active" or "Inactive"
         await userModel.changeUserStatus(req.params.id, newStatus);
-        res.status(200).send(`User successfully ${newStatus === 'Active' ? 'activated' : 'deactivated'}`);
+        res.status(200).json({
+            message: `User successfully ${newStatus === 'Active' ? 'activated' : 'deactivated'}`,
+            code: 200
+        });
     } catch (err) {
-        res.status(500).send('Error changing user status');
+        res.status(500).json({
+            message: 'Error changing user status: ' + err.message,
+            code: 500
+        });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
